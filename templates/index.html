@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HotPuppy - AI Puppy Generator</title>
+    <title>HotPuppy - Evolving AI Art</title>
     <style>
         * {
             margin: 0;
@@ -13,166 +13,296 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #1a1a1a;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Input section at top */
+        .input-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            position: relative;
+            z-index: 100;
+        }
+
+        .input-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .input-box {
+            flex: 1;
+            padding: 18px 25px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 50px;
+            outline: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s;
+        }
+
+        .input-box:focus {
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .evolve-btn {
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 18px 45px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .evolve-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3);
+        }
+
+        .evolve-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Main content area */
+        .content {
+            flex: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 20px;
-        }
-
-        .container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            padding: 40px;
-            max-width: 900px;
-            width: 100%;
-            text-align: center;
-        }
-
-        h1 {
-            color: #667eea;
-            font-size: 3em;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .subtitle {
-            color: #666;
-            font-size: 1.2em;
-            margin-bottom: 30px;
+            padding: 40px 20px;
+            position: relative;
         }
 
         .image-container {
-            margin: 30px 0;
-            border-radius: 15px;
+            max-width: 1024px;
+            width: 100%;
+            border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            position: relative;
         }
 
-        .puppy-image {
+        .main-image {
             width: 100%;
             height: auto;
             display: block;
         }
 
-        .prompt {
-            background: #f7f7f7;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px 0;
-            color: #333;
+        .image-info {
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .user-input-display {
+            font-size: 1.2em;
+            margin-bottom: 10px;
             font-style: italic;
         }
 
-        .source {
-            color: #999;
+        .evolution-count {
+            color: #aaa;
             font-size: 0.9em;
-            margin-bottom: 20px;
         }
 
-        .button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+        /* Archive button - lower right */
+        .archive-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: white;
+            color: #667eea;
             border: none;
-            padding: 15px 40px;
-            font-size: 1.1em;
+            padding: 15px 35px;
+            font-size: 1em;
+            font-weight: 600;
             border-radius: 50px;
             cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            margin: 10px;
+            box-shadow: 0 6px 30px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s;
+            z-index: 50;
         }
 
-        .button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        .archive-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 40px rgba(0, 0, 0, 0.5);
+            background: #667eea;
+            color: white;
         }
 
-        .button:active {
-            transform: translateY(0);
-        }
-
-        .loading {
+        /* Loading state */
+        .loading-overlay {
             display: none;
-            color: #667eea;
-            font-size: 1.2em;
-            margin: 20px 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 20px;
         }
 
-        .loading.active {
-            display: block;
+        .loading-overlay.active {
+            display: flex;
         }
 
-        .footer {
-            margin-top: 30px;
-            color: #999;
-            font-size: 0.9em;
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
         }
 
-        .paw-print {
-            font-size: 2em;
-            display: inline-block;
-            animation: bounce 1s infinite;
+        @keyframes spin {
+            to { transform: rotate(360deg); }
         }
 
-        @keyframes bounce {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+        .loading-text {
+            color: white;
+            font-size: 1.3em;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .input-container {
+                flex-direction: column;
+            }
+
+            .input-box {
+                width: 100%;
+            }
+
+            .archive-btn {
+                bottom: 15px;
+                right: 15px;
+                padding: 12px 25px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1><span class="paw-print">🐾</span> HotPuppy</h1>
-        <p class="subtitle">Fresh AI-Generated Puppy Images Every Visit!</p>
-
-        <div class="image-container">
-            <img src="{{ image_url }}" alt="AI Generated Puppy" class="puppy-image" id="puppyImage">
-        </div>
-
-        <div class="prompt">
-            <strong>Prompt:</strong> {{ prompt }}
-        </div>
-
-        <div class="source">
-            Generated by: {{ source }}
-        </div>
-
-        <button class="button" onclick="getNewPuppy()">🎲 Generate New Puppy</button>
-        <button class="button" onclick="location.reload()">🔄 Reload Page</button>
-
-        <div class="loading" id="loading">
-            <span class="paw-print">🐾</span> Generating your puppy...
-        </div>
-
-        <div class="footer">
-            Made with ❤️ and AI • Every refresh brings a new friend!
+    <!-- Input section at top -->
+    <div class="input-section">
+        <div class="input-container">
+            <input
+                type="text"
+                id="userInput"
+                class="input-box"
+                placeholder="Add to the evolution... (e.g., 'add a beach sunset' or 'make it cyberpunk')"
+                maxlength="200"
+            />
+            <button onclick="evolveImage()" class="evolve-btn" id="evolveBtn">
+                Evolve Image
+            </button>
         </div>
     </div>
 
-    <script>
-        async function getNewPuppy() {
-            const loadingEl = document.getElementById('loading');
-            const imageEl = document.getElementById('puppyImage');
+    <!-- Main content -->
+    <div class="content">
+        {% if current_image %}
+        <div class="image-container">
+            <img src="{{ current_image.image_url }}" alt="Current HotPuppy Evolution" class="main-image" id="mainImage">
+            <div class="image-info">
+                {% if current_image.user_input %}
+                <div class="user-input-display">
+                    "{{ current_image.user_input }}"
+                </div>
+                {% endif %}
+                <div class="evolution-count">
+                    Evolution #{{ total_images }}
+                    {% if current_image.is_seed %}(Seed Image){% endif %}
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div style="color: white; font-size: 1.5em;">
+            Initializing HotPuppy... Please refresh in a moment.
+        </div>
+        {% endif %}
+    </div>
 
+    <!-- Archive button - lower right -->
+    <button onclick="window.location.href='/archive'" class="archive-btn">
+        Archive
+    </button>
+
+    <!-- Loading overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+        <div class="loading-text">Evolving your image...</div>
+    </div>
+
+    <script>
+        async function evolveImage() {
+            const inputEl = document.getElementById('userInput');
+            const btnEl = document.getElementById('evolveBtn');
+            const loadingEl = document.getElementById('loadingOverlay');
+            const userInput = inputEl.value.trim();
+
+            if (!userInput) {
+                alert('Please enter some text to evolve the image!');
+                return;
+            }
+
+            // Disable input and show loading
+            inputEl.disabled = true;
+            btnEl.disabled = true;
             loadingEl.classList.add('active');
 
             try {
-                const response = await fetch('/api/new-puppy');
+                const formData = new FormData();
+                formData.append('user_input', userInput);
+
+                const response = await fetch('/evolve', {
+                    method: 'POST',
+                    body: formData
+                });
+
                 const data = await response.json();
 
-                imageEl.src = data.image_url;
-                document.querySelector('.prompt').innerHTML = `<strong>Prompt:</strong> ${data.prompt}`;
-                document.querySelector('.source').textContent = `Generated by: ${data.source}`;
+                if (data.success) {
+                    // Reload page to show new image
+                    window.location.reload();
+                } else {
+                    alert('Error evolving image: ' + (data.error || 'Unknown error'));
+                    inputEl.disabled = false;
+                    btnEl.disabled = false;
+                    loadingEl.classList.remove('active');
+                }
             } catch (error) {
-                console.error('Error fetching new puppy:', error);
-                alert('Oops! Could not fetch a new puppy. Please try again.');
-            } finally {
+                alert('Network error: ' + error.message);
+                inputEl.disabled = false;
+                btnEl.disabled = false;
                 loadingEl.classList.remove('active');
             }
         }
+
+        // Allow Enter key to submit
+        document.getElementById('userInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                evolveImage();
+            }
+        });
     </script>
 </body>
 </html>

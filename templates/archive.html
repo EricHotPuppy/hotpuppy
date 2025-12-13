@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HotPuppy Archive - Evolution History</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a1a;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        /* Carousel container */
+        .carousel-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            padding: 40px 100px;
+        }
+
+        .carousel-wrapper {
+            max-width: 1200px;
+            width: 100%;
+            position: relative;
+        }
+
+        .slide {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            animation: fadeIn 0.5s;
+        }
+
+        .slide.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .slide-image-container {
+            max-width: 900px;
+            width: 100%;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+            margin-bottom: 30px;
+        }
+
+        .slide-image {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .slide-info {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 25px;
+            color: white;
+            max-width: 900px;
+            width: 100%;
+            text-align: center;
+        }
+
+        .slide-number {
+            font-size: 0.9em;
+            color: #aaa;
+            margin-bottom: 10px;
+        }
+
+        .slide-input {
+            font-size: 1.4em;
+            font-style: italic;
+            margin-bottom: 15px;
+            color: #fff;
+        }
+
+        .slide-timestamp {
+            font-size: 0.95em;
+            color: #bbb;
+        }
+
+        .seed-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-top: 10px;
+        }
+
+        /* Navigation arrows */
+        .nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+            border: none;
+            color: white;
+            font-size: 3em;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+
+        .nav-arrow:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .nav-arrow:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .nav-arrow.left {
+            left: 20px;
+        }
+
+        .nav-arrow.right {
+            right: 20px;
+        }
+
+        /* Back button */
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: white;
+            color: #667eea;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1em;
+            font-weight: 600;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            transition: all 0.3s;
+            z-index: 100;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(0, 0, 0, 0.5);
+            background: #667eea;
+            color: white;
+        }
+
+        /* Empty state */
+        .empty-state {
+            color: white;
+            text-align: center;
+            font-size: 1.3em;
+        }
+
+        /* Keyboard hint */
+        .keyboard-hint {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #aaa;
+            font-size: 0.9em;
+            text-align: center;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .carousel-container {
+                padding: 20px 60px;
+            }
+
+            .nav-arrow {
+                width: 50px;
+                height: 50px;
+                font-size: 2em;
+            }
+
+            .nav-arrow.left {
+                left: 10px;
+            }
+
+            .nav-arrow.right {
+                right: 10px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .slide-input {
+                font-size: 1.1em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Back button -->
+    <button onclick="window.location.href='/'" class="back-btn">
+        ← Back
+    </button>
+
+    <!-- Header -->
+    <div class="header">
+        <h1>🗂️ Evolution Archive</h1>
+        <p>Watch how HotPuppy evolved over time</p>
+    </div>
+
+    <!-- Carousel -->
+    <div class="carousel-container">
+        {% if images %}
+        <div class="carousel-wrapper">
+            <!-- Left arrow -->
+            <button class="nav-arrow left" id="prevBtn" onclick="navigate(-1)">
+                ‹
+            </button>
+
+            <!-- Slides -->
+            {% for image in images %}
+            <div class="slide {% if loop.first %}active{% endif %}" data-slide="{{ loop.index0 }}">
+                <div class="slide-image-container">
+                    <img src="{{ image.image_url }}" alt="Evolution {{ loop.index }}" class="slide-image">
+                </div>
+
+                <div class="slide-info">
+                    <div class="slide-number">
+                        Evolution {{ loop.index }} of {{ total_images }}
+                    </div>
+
+                    {% if image.user_input %}
+                    <div class="slide-input">
+                        "{{ image.user_input }}"
+                    </div>
+                    {% else %}
+                    <div class="slide-input">
+                        Original Seed Image
+                    </div>
+                    {% endif %}
+
+                    <div class="slide-timestamp">
+                        {{ image.created_at }}
+                    </div>
+
+                    {% if image.is_seed %}
+                    <div class="seed-badge">
+                        🌱 SEED IMAGE
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+
+            <!-- Right arrow -->
+            <button class="nav-arrow right" id="nextBtn" onclick="navigate(1)">
+                ›
+            </button>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            No evolutions yet. Start by adding your first evolution!
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Keyboard hint -->
+    <div class="keyboard-hint">
+        Use arrow keys ← → or click arrows to navigate
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const totalSlides = {{ total_images }};
+
+        function showSlide(index) {
+            // Hide all slides
+            const slides = document.querySelectorAll('.slide');
+            slides.forEach(slide => slide.classList.remove('active'));
+
+            // Show current slide
+            if (slides[index]) {
+                slides[index].classList.add('active');
+            }
+
+            // Update buttons
+            updateButtons();
+        }
+
+        function navigate(direction) {
+            currentSlide += direction;
+
+            // Keep within bounds
+            if (currentSlide < 0) currentSlide = 0;
+            if (currentSlide >= totalSlides) currentSlide = totalSlides - 1;
+
+            showSlide(currentSlide);
+        }
+
+        function updateButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            if (prevBtn && nextBtn) {
+                prevBtn.disabled = currentSlide === 0;
+                nextBtn.disabled = currentSlide === totalSlides - 1;
+            }
+        }
+
+        // Keyboard navigation
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'ArrowLeft') {
+                navigate(-1);
+            } else if (e.key === 'ArrowRight') {
+                navigate(1);
+            }
+        });
+
+        // Initialize
+        updateButtons();
+    </script>
+</body>
+</html>
