@@ -68,7 +68,7 @@ async def startup_event():
 
 async def create_seed_image():
     """Create the initial 'hotpuppy' seed image"""
-    seed_prompt = "a hot puppy - a stylish, cool, fashionable puppy wearing sunglasses, vibrant and eye-catching, digital art"
+    seed_prompt = "HotPuppy: an incredibly cool and stylish puppy with attitude, wearing designer sunglasses and a leather jacket, flames and fire effects in the background, vibrant neon colors, edgy street art style, confident pose, digital art masterpiece"
 
     openai_api_key = os.getenv("OPENAI_API_KEY")
 
@@ -136,7 +136,8 @@ async def evolve_image(current_image_url: str, current_prompt: str, user_input: 
     logger.info(f"🔄 Evolving image with user input: '{user_input}'")
 
     # Create evolved prompt: describe current + add new input
-    evolved_prompt = f"Building upon this concept: {current_prompt}. Now evolving with this addition: {user_input}. Maintain 70% of the original style and subject, while incorporating 30% of the new idea. Keep the same artistic style and overall composition."
+    # Using 50/50 weighting for more dramatic, visible changes
+    evolved_prompt = f"Evolve this image: {current_prompt}. IMPORTANT: Blend this with the following new concept at equal importance: {user_input}. Create a fusion that maintains 50% of the original character and style while incorporating 50% of the new concept. Make the transformation clear and visible."
 
     logger.debug(f"📝 Evolved prompt: {evolved_prompt}")
 

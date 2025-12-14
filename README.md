@@ -4,11 +4,11 @@ An evolving, collaborative AI art experience where each visitor contributes to t
 
 ## Concept
 
-HotPuppy starts with one AI-generated seed image. Each visitor can add their own creative twist, evolving the image based on:
-- **70% of the current image** - Maintains visual continuity
-- **30% of the visitor's input** - Adds fresh creativity
+HotPuppy starts with one AI-generated "HOT" puppy seed image - a cool, stylish pup with attitude! Each visitor can add their own creative twist, evolving the image based on:
+- **50% of the current image** - Maintains core character
+- **50% of the visitor's input** - Dramatic, visible transformations
 
-Watch the image evolve from a simple concept into something completely unexpected through collective creativity!
+Watch the image evolve from a hot puppy into something completely unexpected through collective creativity!
 
 ## Features
 
