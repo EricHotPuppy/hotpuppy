@@ -32,7 +32,14 @@ app = FastAPI(title="HotPuppy - Evolving AI Art")
 app.add_middleware(SessionMiddleware, secret_key=os.getenv("SESSION_SECRET", "hotpuppy-secret-key-change-in-production"))
 
 # Mount static files and templates
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# Static directory is optional - only mount if it exists and has files
+from pathlib import Path
+static_path = Path("static")
+if static_path.exists():
+    app.mount("/static", StaticFiles(directory="static"), name="static")
+else:
+    logger.warning("⚠️ Static directory not found, skipping static file serving")
+
 templates = Jinja2Templates(directory="templates")
 
 # Initialize database on startup
