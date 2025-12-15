@@ -95,7 +95,7 @@ async def create_seed_image():
 
                 logger.debug(f"📥 Response status: {response.status_code}")
 
-             if response.status_code == 200:
+                if response.status_code == 200:
                     data = response.json()
                     image_url = data["data"][0]["url"]
                     # Use DALL-E's revised prompt for cleaner description
@@ -104,7 +104,10 @@ async def create_seed_image():
                     add_image(image_url, revised_prompt, user_input=None, is_seed=True)
                     logger.info(f"✅ Seed image created successfully via DALL-E")
                     return
-                 
+                else:
+                    error_data = response.text
+                    logger.error(f"❌ OpenAI API error {response.status_code}: {error_data}")
+
         except httpx.TimeoutException as e:
             logger.error(f"⏱️ Timeout error generating seed image: {e}")
         except httpx.RequestError as e:
@@ -137,8 +140,6 @@ async def evolve_image(current_image_url: str, current_prompt: str, user_input: 
 
     logger.debug(f"📝 Evolved prompt: {evolved_prompt}")
 
-    d
-
     openai_api_key = os.getenv("OPENAI_API_KEY")
 
     if openai_api_key:
@@ -164,7 +165,7 @@ async def evolve_image(current_image_url: str, current_prompt: str, user_input: 
 
                 logger.debug(f"📥 Evolution response status: {response.status_code}")
 
-        if response.status_code == 200:
+                if response.status_code == 200:
                     data = response.json()
                     # DALL-E 3 returns a revised_prompt showing what it actually generated
                     # Use that for cleaner evolution tracking
@@ -176,8 +177,14 @@ async def evolve_image(current_image_url: str, current_prompt: str, user_input: 
                         "prompt": revised_prompt,  # Store DALL-E's clean description
                         "success": True
                     }
+                else:
+                    error_data = response.text
+                    logger.error(f"❌ OpenAI API error {response.status_code}: {error_data}")
+                    return {
+                        "success": False,
+                        "error": f"OpenAI API error {response.status_code}: {error_data[:200]}"
+                    }
 
-        
         except httpx.TimeoutException as e:
             logger.error(f"⏱️ Timeout error evolving image: {e}")
             return {"success": False, "error": "Request timed out (60s). Please try again."}
