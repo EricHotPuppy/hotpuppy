@@ -95,16 +95,16 @@ async def create_seed_image():
 
                 logger.debug(f"📥 Response status: {response.status_code}")
 
-                if response.status_code == 200:
+             if response.status_code == 200:
                     data = response.json()
                     image_url = data["data"][0]["url"]
-                    add_image(image_url, seed_prompt, user_input=None, is_seed=True)
+                    # Use DALL-E's revised prompt for cleaner description
+                    revised_prompt = data["data"][0].get("revised_prompt", seed_prompt)
+                    logger.debug(f"📝 DALL-E revised seed prompt: {revised_prompt}")
+                    add_image(image_url, revised_prompt, user_input=None, is_seed=True)
                     logger.info(f"✅ Seed image created successfully via DALL-E")
                     return
-                else:
-                    error_data = response.text
-                    logger.error(f"❌ OpenAI API error {response.status_code}: {error_data}")
-
+                 
         except httpx.TimeoutException as e:
             logger.error(f"⏱️ Timeout error generating seed image: {e}")
         except httpx.RequestError as e:
@@ -123,23 +123,21 @@ async def create_seed_image():
 
 async def evolve_image(current_image_url: str, current_prompt: str, user_input: str):
     """
-    Evolve the image based on current image (70%) + user input (30%)
+    Evolve the image based on current image + user input
 
-    Since DALL-E 3 doesn't support img2img directly, we'll use a clever prompt
-    that describes the current image and incorporates the new input.
-
-    For true img2img with weight control, consider:
-    - Stability AI (init_image + strength parameter)
-    - Replicate (various models with img2img)
+    We create a clean, simple prompt that describes the current image
+    and incorporates the user's new concept.
     """
 
     logger.info(f"🔄 Evolving image with user input: '{user_input}'")
 
-    # Create evolved prompt: describe current + add new input
-    # Using 50/50 weighting for more dramatic, visible changes
-    evolved_prompt = f"Evolve this image: {current_prompt}. IMPORTANT: Blend this with the following new concept at equal importance: {user_input}. Create a fusion that maintains 50% of the original character and style while incorporating 50% of the new concept. Make the transformation clear and visible."
+    # Create a clean, simple evolution prompt
+    # Build on the current description and add the new concept
+    evolved_prompt = f"{current_prompt}, now also featuring: {user_input}. Blend these concepts together seamlessly in a single cohesive image."
 
     logger.debug(f"📝 Evolved prompt: {evolved_prompt}")
+
+    d
 
     openai_api_key = os.getenv("OPENAI_API_KEY")
 
@@ -166,22 +164,20 @@ async def evolve_image(current_image_url: str, current_prompt: str, user_input: 
 
                 logger.debug(f"📥 Evolution response status: {response.status_code}")
 
-                if response.status_code == 200:
+        if response.status_code == 200:
                     data = response.json()
+                    # DALL-E 3 returns a revised_prompt showing what it actually generated
+                    # Use that for cleaner evolution tracking
+                    revised_prompt = data["data"][0].get("revised_prompt", evolved_prompt)
                     logger.info("✅ Image evolved successfully via DALL-E")
+                    logger.debug(f"📝 DALL-E revised prompt: {revised_prompt}")
                     return {
                         "image_url": data["data"][0]["url"],
-                        "prompt": evolved_prompt,
+                        "prompt": revised_prompt,  # Store DALL-E's clean description
                         "success": True
                     }
-                else:
-                    error_data = response.text
-                    logger.error(f"❌ OpenAI API error {response.status_code}: {error_data}")
-                    return {
-                        "success": False,
-                        "error": f"OpenAI API error {response.status_code}: {error_data[:200]}"
-                    }
 
+        
         except httpx.TimeoutException as e:
             logger.error(f"⏱️ Timeout error evolving image: {e}")
             return {"success": False, "error": "Request timed out (60s). Please try again."}
