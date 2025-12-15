@@ -10,11 +10,3 @@ run:
   command: python -m uvicorn main:app --host 0.0.0.0 --port 8000
   network:
     port: 8000
-  env:
-    - name: OPENAI_API_KEY
-      value: ""
-    - name: SESSION_SECRET
-      value: "change-this-to-a-random-secret-in-production"
-    - name: DEBUG
-      value: "false"
- 
