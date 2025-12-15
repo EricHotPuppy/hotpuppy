@@ -17,3 +17,4 @@ run:
       value: "change-this-to-a-random-secret-in-production"
     - name: DEBUG
       value: "false"
+ 
